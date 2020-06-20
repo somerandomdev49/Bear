@@ -19,25 +19,25 @@ import Symbol // For Symbol and SymbolContext
 
 const myContext SymbolContext
 
-parse -> trim -> head |> match . {
-  	( [., '('] -> equals ) -> [parseInside, .] -> .1 |> match . {
+parse -> trim -> [head, .] -> match .0 {
+  	( [., '('] -> equals ) => [parseInside, .] -> match .1 {
 		')' -> .0
 		 _  -> throw "Expected ')'"
 	};
 
-  	isalpha -> ${
+  	isalpha => ${
 		until .
 		{ not (head -> isalpha) }
-		{ (<$ head) |> tail  }
+		{ <$ head |> tail }
 	} -> accumulate -> SymbolIn myContext;
 
-	{[([., '-'] -> equal), isdigit] -> or } -> ${
+	{[([., '-'] -> equal), isdigit] -> or } => ${
 		until .
 		{ not (head -> isdigit) }
-		{ (<$ head) |> tail  }
+		{ <$ head |> tail  }
 	} -> accumulate -> number;
 
-   	_ -> throw (["Unexpected character: '", ., "'."] -> @Concat);
+   	true => throw (["Unexpected character: '", ., "'."] -> @Concat);
 };
 
 exec -> match . {
@@ -53,12 +53,18 @@ lisp -> void -> parse -> exec;
 hello -> void -> "Hello, World!" -> stdout;
 
 //============[ Calculator ]============//
-math -> [.1, .2] |> @(operator);
+math -> [.0, .1, .2] -> match tail { true => @(.0 -> operator) };
+// or with syntax sugar:
+math -> [.1, .2] |> @(.0 -> operator)
+
 
 main -> math;
 ```
-`|>` - transparent arrow. moves input to the next expr, but saves the context...
-eg. `TransparentArrow : Arrow { void Move(Obj prev, Obj next) { next.Input = prev; next.Exec(prev.Previous); } }`
+`a |> b = match a { true => b }`
+
+
+Implementation?
+for example: `TransparentArrow : Arrow { void Move(Obj prev, Obj next) { next.Input = prev; next.Exec(prev.Previous); } }`
 and `BasicArrow : Arrow { void Move(Obj prev, Obj next) { next.Input = prev; next.Exec(prev); } }`
 
 
