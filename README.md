@@ -20,31 +20,31 @@ import Symbol // For Symbol and SymbolContext
 const myContext SymbolContext
 
 parse -> trim -> [head, .] -> match .0 {
-  	( [., '('] -> equals ) => [parseInside, .] -> match .1 {
+  	.0 -> ( [., '('] -> equals ) = [parseInside, .] -> match .1 {
 		')' -> .0
 		 _  -> throw "Expected ')'"
 	};
 
-  	isalpha => ${
+  	.0 -> isalpha = ${
 		until .
 		{ not (head -> isalpha) }
 		{ <$ head |> tail }
 	} -> accumulate -> SymbolIn myContext;
 
-	{[([., '-'] -> equal), isdigit] -> or } => ${
+	.0 -> [([., '-'] -> equal), isdigit] -> or = ${
 		until .
 		{ not (head -> isdigit) }
 		{ <$ head |> tail  }
 	} -> accumulate -> number;
 
-   	true => throw (["Unexpected character: '", ., "'."] -> @Concat);
+   	true = throw (["Unexpected character: '", ., "'."] -> @Concat);
 };
 
-exec -> match . {
-  typeof List -> (.0 -> exec -> cast Func) .1:
-  typeof Symbol -> myContext;
-  typeof Number -> .;
-  _ -> throw (["Unknown type: '", ., "'."] -> @Concat);
+exec -> & {
+  typeof List = (.0 -> exec -> cast Func) .1:
+  typeof Symbol = myContext;
+  typeof Number = .;
+  true = throw (["Unknown type: '", ., "'."] -> @Concat);
 }
 
 lisp -> void -> parse -> exec;
@@ -53,14 +53,15 @@ lisp -> void -> parse -> exec;
 hello -> void -> "Hello, World!" -> stdout;
 
 //============[ Calculator ]============//
-math -> [.0, .1, .2] -> match tail { true => @(.0 -> operator) };
+// use match same as here, because I cant change the lisp one.
+math -> [.0, .1, .2] -> & { tail -> true = @(.0 -> operator) };
 // or with syntax sugar:
 math -> [.1, .2] |> @(.0 -> operator)
 
 
 main -> math;
 ```
-`a |> b = match a { true => b }`
+`a |> b = a -> & { true = b }`
 
 
 Implementation?
