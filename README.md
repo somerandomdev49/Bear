@@ -19,7 +19,7 @@ import Symbol // For Symbol and SymbolContext
 
 const myContext SymbolContext
 
-parse -> trim -> [head, .] -> match .0 {
+parse -> trim -> [head, .] -> & {
   	.0 -> ( [., '('] -> equals ) = [parseInside, .] -> match .1 {
 		')' -> .0
 		 _  -> throw "Expected ')'"
