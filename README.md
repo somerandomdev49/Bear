@@ -41,7 +41,7 @@ parse -> trim -> [head, .] -> & {
 };
 
 exec -> & {
-  typeof List = (.0 -> exec -> cast Func) .1:
+  typeof List = *(.0 -> exec -> :cast Func) .1: // '*' makes calling an expression possible
   typeof Symbol = myContext;
   typeof Number = .;
   true = throw (["Unknown type: '", ., "'."] -> @Concat);
@@ -56,7 +56,7 @@ hello -> void -> "Hello, World!" -> stdout;
 // use match same as here, because I cant change the lisp one.
 math -> [.0, .1, .2] -> & { tail -> true = @(.0 -> operator) };
 // or with syntax sugar:
-math -> [.1, .2] |> @(.0 -> operator)
+math -> [.1, .2] |> @(.0 -> toOperator)
 
 
 main -> math;
