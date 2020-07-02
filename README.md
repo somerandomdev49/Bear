@@ -15,9 +15,9 @@ Example code:
 
 //============[ lisp example ]============//
 
-import Symbol // For Symbol and SymbolContext
+import Symbol // For makeSymbolIn and SymbolContext
 
-const myContext SymbolContext
+const myContext: SymbolContext;
 
 parse -> trim -> [head, .] -> & {
   	.0 -> ( [., '('] -> equals ) = [parseInside, .] -> & {
@@ -29,7 +29,7 @@ parse -> trim -> [head, .] -> & {
 		until .
 		{ head -> isalpha -> :@Not }
 		{ <$ head |> tail }
-	} -> collect -> string -> SymbolIn myContext;
+	} -> collect -> string -> makeSymbolIn myContext;
 
 	.0 -> [([., '-'] -> @Equal), isdigit] -> @Or = ${
 		until .
@@ -45,9 +45,9 @@ exec -> & {
   typeof Symbol = myContext;
   typeof Number = .;
   true = throw (["Unknown type: '", ., "'."] -> @Concat);
-}
+};
 
-lisp -> void -> parse -> exec;
+lisp -> parse -> exec;
 
 //============[ Hello World ]============//
 hello -> void -> "Hello, World!" -> stdout;
@@ -67,7 +67,24 @@ main -> math;
 `collect` is used to "collect" all elements into a list.
 
 `string` converts a list into a string. Eg. `['a', 'b'] -> "ab"`
-`toString` converts Lists, Numbers, Strings, Chars (implict) into strings. Eg `49 -> "49"; ['a', 'b'] -> "['a','b']"; 'x' -> "x"; "abc" -> "abc"`. Otherwise tries to use `@String`, else `:toString`, else `:@toString` else `getType |> :toString`, else `getType |> :@toString`, and finally `cast String` if none work, throws `!CastError/String/`.
+
+`toString` converts Lists, Numbers, Strings, Chars (implict) into strings. Eg `49 -> "49"; ['a', 'b'] -> "['a','b']"; 'x' -> "x"; "abc" -> "abc"`.
+
+Otherwise tries to use `@String`, 
+else `:toString`,
+else `:@toString`,
+else `getType |> :toString`,
+else `getType |> :@toString`,
+and finally `cast String`,
+if none work, throws `!CastError/String/`.
+
+```fsharp
+export as "Context"
+
+makeSymbolIn ctx -> ctx |> :symbolTable |> :@Put
+type SymbolContext => {{ /* TODO */ }}
+
+```
 
 A bunch of ideas! Errors: `!Error`, Access of things: `:Something`, or unary operator access `:@Operator`, Generics: `Type/OtherType, AnotherType/` (Errors are types).
 :D
