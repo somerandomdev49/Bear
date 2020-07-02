@@ -20,22 +20,22 @@ import Symbol // For Symbol and SymbolContext
 const myContext SymbolContext
 
 parse -> trim -> [head, .] -> & {
-  	.0 -> ( [., '('] -> equals ) = [parseInside, .] -> match .1 {
-		')' -> .0
+  	.0 -> ( [., '('] -> equals ) = [parseInside, .] -> & {
+		[')', .1 -> head] -> @Equal = .0
 		 _  -> throw "Expected ')'"
 	};
 
   	.0 -> isalpha = ${
 		until .
-		{ not (head -> isalpha) }
+		{ head -> isalpha -> :@Not }
 		{ <$ head |> tail }
-	} -> accumulate -> SymbolIn myContext;
+	} -> collect -> string -> SymbolIn myContext;
 
-	.0 -> [([., '-'] -> equal), isdigit] -> or = ${
+	.0 -> [([., '-'] -> @Equal), isdigit] -> @Or = ${
 		until .
-		{ not (head -> isdigit) }
+		{ head -> isdigit -> :@Not }
 		{ <$ head |> tail  }
-	} -> accumulate -> number;
+	} -> collect -> string -> number;
 
    	true = throw (["Unexpected character: '", ., "'."] -> @Concat);
 };
@@ -61,8 +61,16 @@ math -> [.1, .2] |> @(.0 -> operator)
 
 main -> math;
 ```
-`a |> b = a -> & { true = b }`
 
+`a |> b` is `a -> & { true = b }`
+`${...}` - Generator block. `<$` is used to generate an element.
+`collect` is used to "collect" all elements into a list.
+
+`string` converts a list into a string. Eg. `['a', 'b'] -> "ab"`
+`toString` converts Lists, Numbers, Strings, Chars (implict) into strings. Eg `49 -> "49"; ['a', 'b'] -> "['a','b']"; 'x' -> "x"; "abc" -> "abc"`. Otherwise tries to use `@String`, else `:toString`, else `:@toString` else `getType |> :toString`, else `getType |> :@toString`, and finally `cast String` if none work, throws `!CastError/String/`.
+
+A bunch of ideas! Errors: `!Error`, Access of things: `:Something`, or unary operator access `:@Operator`, Generics: `Type/OtherType, AnotherType/` (Errors are types).
+:D
 
 Implementation?
 for example: `TransparentArrow : Arrow { void Move(Obj prev, Obj next) { next.Input = prev; next.Exec(prev.Previous); } }`
