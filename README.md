@@ -1,7 +1,8 @@
 <h1 align="center"> Bear </h1>
 <p align="center">Bear Language Specification</p>
+> Here you can see my process of making a language (I hope :)
 
-A Functional/(?) language. Everything is based around "transformation" of data.
+A Concatenative language. Everything is based around "transformation" of data.
 
 A basic program: Add `1` to each element of a list.
 (In code: `.` - `this` or `current` or whatever)
@@ -37,14 +38,14 @@ parse -> trim -> [head, .] -> & {
 		{ <$ head |> tail  }
 	} -> collect -> string -> number;
 
-   	true = throw (["Unexpected character: '", ., "'."] -> @Concat);
+   	true = (["Unexpected character: '", ., "'."] -> @Concat) -> !Error -> throw;
 };
 
 exec -> & {
   typeof List = *(.0 -> exec -> :cast Func) .1: // '*' makes calling an expression possible
   typeof Symbol = myContext;
   typeof Number = .;
-  true = throw (["Unknown type: '", ., "'."] -> @Concat);
+  true = (["Unknown type: '", ., "'."] -> @Concat) -> !Error -> throw;
 };
 
 lisp -> parse -> exec;
@@ -63,13 +64,22 @@ main -> math;
 ```
 
 `a |> b` is `a -> & { true = b }`
-`${...}` - Generator block. `<$` is used to generate an element.
-`collect` is used to "collect" all elements into a list.
 
-`string` converts a list into a string. Eg. `['a', 'b'] -> "ab"`
+### Imperative
+* `%{...}` - Imperative code block. Input is discarded
+* `X %:= Y` - Set `X` to `X -> Y`
+* `<%` return
 
-`toString` converts Lists, Numbers, Strings, Chars (implict) into strings. Eg `49 -> "49"; ['a', 'b'] -> "['a','b']"; 'x' -> "x"; "abc" -> "abc"`.
+### Types
+* `{{...}}` - Type block. Eg. `{{ name: Type; name2: Type2; method -> ...; new -> constructor;  }}
 
+### Generators
+* `${...}` - Generator block. `<$` is used to generate an element.
+* `collect` is used to "collect" all elements into a list.
+
+### Strings
+* `string` converts a list into a string. Eg. `['a', 'b'] -> "ab"`
+* `toString` converts Lists, Numbers, Strings, Chars (implict) into strings. Eg `49 -> "49"; ['a', 'b'] -> "['a','b']"; 'x' -> "x"; "abc" -> "abc"`.
 Otherwise tries to use `@String`, 
 else `:toString`,
 else `:@toString`,
@@ -78,11 +88,26 @@ else `getType |> :@toString`,
 and finally `cast String`,
 if none work, throws `!CastError/String/`.
 
+## ...
+
 ```fsharp
 export as "Context"
 
-makeSymbolIn ctx -> ctx |> :symbolTable |> :@Put
-type SymbolContext => {{ /* TODO */ }}
+makeSymbolIn ctx -> ctx |> :symbolTable |> & {
+	:has = !DuplicateSymbol -> throw; //? Warning: "!DuplicateSymbol" receives input! To remove this warning add ". ->" in front of "!DuplicateSymbol".
+	:full = void -> !OutOfMemoryError -> throw;
+	true = :@Put;
+}
+
+type SymbolContext => {{
+	symbolTable: Map/Any/;
+	parent: SymbolContext;
+	new -> %{                           //??? (by default) Warning: Imperative code block shouldn't be used. 
+		:symbolTable %:= init;
+		:parent %:= null;
+		<% .;
+	}
+}};
 
 ```
 
