@@ -71,7 +71,7 @@ main -> math;
 * `<%` return
 
 ### Types
-* `{{...}}` - Type block. Eg. `{{ name: Type; name2: Type2; method -> ...; new -> constructor;  }}
+* `{{...}}` - Type block. Eg. `{{ name: Type; name2: Type2; method -> ...; new -> constructor;  }}`
 
 ### Generators
 * `${...}` - Generator block. `<$` is used to generate an element.
