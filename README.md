@@ -1,8 +1,11 @@
 <h1 align="center"> Bear </h1>
 <p align="center">Bear Language Specification</p>
-> Here you can see my process of making a language (I hope :)
+
+> Here you can see my process of making a language (I hope :)  
 
 A Concatenative language. Everything is based around "transformation" of data.
+
+# Other
 
 A basic program: Add `1` to each element of a list.
 (In code: `.` - `this` or `current` or whatever)
@@ -58,9 +61,6 @@ hello -> void -> "Hello, World!" -> stdout;
 math -> [.0, .1, .2] -> & { tail -> true = @(.0 -> operator) };
 // or with syntax sugar:
 math -> [.1, .2] |> @(.0 -> toOperator)
-
-
-main -> math;
 ```
 
 `a |> b` is `a -> & { true = b }`
@@ -89,10 +89,7 @@ and finally `cast String`,
 if none work, throws `!CastError/String/`.
 
 ## ...
-
 ```fsharp
-export as "Context"
-
 makeSymbolIn ctx -> ctx |> :symbolTable |> & {
 	:has = !DuplicateSymbol -> throw; //? Warning: "!DuplicateSymbol" receives input! To remove this warning add ". ->" in front of "!DuplicateSymbol".
 	:full = void -> !OutOfMemoryError -> throw;
@@ -102,7 +99,7 @@ makeSymbolIn ctx -> ctx |> :symbolTable |> & {
 type SymbolContext => {{
 	symbolTable: Map/Any/;
 	parent: SymbolContext;
-	new -> %{                           //??? (by default) Warning: Imperative code block shouldn't be used. 
+	new -> %{ //??? (by default) Warning: Imperative code block shouldn't be used. 
 		:symbolTable %:= init;
 		:parent %:= null;
 		<% .;
@@ -111,12 +108,38 @@ type SymbolContext => {{
 
 ```
 
-A bunch of ideas! Errors: `!Error`, Access of things: `:Something`, or unary operator access `:@Operator`, Generics: `Type/OtherType, AnotherType/` (Errors are types).
+A bunch of ideas! Errors: `!Error`, Access of things: `:Something`, or unary operator access `:@Operator`, Generics: `Type/OtherType, AnotherType/` (Errors are also types).
 :D
 
 Implementation?
 for example: `TransparentArrow : Arrow { void Move(Obj prev, Obj next) { next.Input = prev; next.Exec(prev.Previous); } }`
 and `BasicArrow : Arrow { void Move(Obj prev, Obj next) { next.Input = prev; next.Exec(prev); } }`
 
+# Specification
 
+## Syntax:
 
+> TODO!  
+Weird form...
+```
+identifier ::= [a-zA-Z_][a-zA-Z0-9_]*
+number ::= -?[0-9]+(\.[0-9]+[fdlFDL]
+
+expression | '(' expression ')'   -> Expression
+           | '[' list ']'         -> List
+	   | '{' code '}'         -> Block
+	   | '${' code '}'        -> Block(gen: true)
+	   | '{{' type '}}'       -> TypeBlock
+	   | '%{' imperative '}'  -> Imperative
+	   | expression '->' expression -> BasicArrow
+	   | expression '|>' expression -> TransparentArrow
+	   | '&' '{' selectors '}' -> Match
+	   
+atom | identifier       -> Identifier
+     | number           -> Number
+     | '.'              -> Dot
+     | ':' identifier   -> Select
+     | '@' identifier   -> Operator
+     | ':@' identifier  -> SelectOperator
+     
+```
