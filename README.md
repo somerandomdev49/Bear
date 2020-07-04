@@ -30,15 +30,11 @@ parse -> trim -> [head, .] -> & {
 	};
 
   	.0 -> isalpha = ${
-		until .
-		{ head -> isalpha -> :@Not }
-		{ <$ head |> tail }
+		* { head -> :@isAlpha } { <$ head |> tail }
 	} -> collect -> string -> makeSymbolIn myContext;
 
 	.0 -> [([., '-'] -> @Equal), isdigit] -> @Or = ${
-		until .
-		{ head -> isdigit -> :@Not }
-		{ <$ head |> tail  }
+		* { head -> :@isAlpha } { <$ head |> tail }
 	} -> collect -> string -> number;
 
    	true = (["Unexpected character: '", ., "'."] -> @Concat) -> !Error -> throw;
@@ -76,6 +72,7 @@ math -> [.1, .2] |> @(.0 -> toOperator)
 ### Generators
 * `${...}` - Generator block. `<$` is used to generate an element.
 * `collect` is used to "collect" all elements into a list.
+* `* { 1... } { 2... }` is basically a while loop. Something like `var output; while(1...) { output = output -> 2... } return output;`
 
 ### Strings
 * `string` converts a list into a string. Eg. `['a', 'b'] -> "ab"`
