@@ -127,8 +127,8 @@ number ::= -?[0-9]+(\.[0-9]+[fdlFDL]
 
 expression | '(' expression ')'   -> Expression
            | '[' list ']'         -> List
-	   | '{' code '}'         -> Block
-	   | '${' code '}'        -> Block(gen: true)
+	   | '{' expression '}'         -> Block
+	   | '${' expression '}'        -> Block(gen: true)
 	   | '{{' type '}}'       -> TypeBlock
 	   | '%{' imperative '}'  -> Imperative
 	   | expression '->' expression -> BasicArrow
