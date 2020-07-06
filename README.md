@@ -62,12 +62,14 @@ math -> [.1, .2] |> @(.0 -> toOperator)
 `a |> b` is `a -> & { true = b }`
 
 ### Imperative
-* `%{...}` - Imperative code block. Input is discarded
+* `%{...}` - Imperative code block. Input is not discarded.
 * `X %:= Y` - Set `X` to `X -> Y`
 * `<%` return
 
 ### Types
 * `{{...}}` - Type block. Eg. `{{ name: Type; name2: Type2; method -> ...; new -> constructor;  }}`
+* `:X` - Instance member
+* `:.` - self, this, instance
 
 ### Generators
 * `${...}` - Generator block. `<$` is used to generate an element.
@@ -99,7 +101,7 @@ type SymbolContext => {{
 	new -> %{ //??? (by default) Warning: Imperative code block shouldn't be used. 
 		:symbolTable %:= init;
 		:parent %:= null;
-		<% .;
+		<% :.;
 	}
 }};
 
