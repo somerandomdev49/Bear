@@ -1,3 +1,12 @@
+<h1 align="center">:construction: MOVED TO <a href="https://github.com/bear-lang/Bear">bear-lang/Bear</a> :construction:</h1>
+
+
+
+
+
+
+
+
 <h1 align="center"> Bear </h1>
 <p align="center">Bear Language Specification</p>
 
@@ -32,7 +41,7 @@ parse -> trim -> [head, .] -> & {
   	.0 -> isalpha = ${
 		* { head -> :@isAlpha } { <$ head |> tail }
 	} -> collect -> string -> makeSymbolIn myContext;
-
+	
 	.0 -> [([., '-'] -> @Equal), isdigit] -> @Or = ${
 		* { head -> :@isAlpha } { <$ head |> tail }
 	} -> collect -> string -> number;
